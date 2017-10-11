@@ -1,6 +1,7 @@
 import hashlib
 import json
 from time import time
+from uuid import uuid4
 from typing import Dict, List, Optional, Union
 
 Transaction = Dict[str, Union[int, str]]
@@ -49,9 +50,25 @@ class Blockchain:
 
 
     @property
-    def last_block(self):
+    def last_block(self) -> Block:
         # Returns the last Block in the chain
         return self.chain[-1]
+
+
+    def proof_of_work(self, last_proof: int) -> int:
+        # Simple Proof of Work Algorithm
+        proof = 0
+        while self.valid_proof(last_proof, proof) is False:
+             proof += 1
+        return proof
+
+
+    @staticmethod
+    def valid_proof(last_proof: int, proof: int) -> bool:
+        # Validates the Proof: Does hash(last_proof, proof) contain 4 leading zeroes?
+        guess = '{lp}{p}'.format(lp=last_proof, p=proof).encode()
+        guess_hash = hashlib.sha256(guess).hexdigest()
+        return guess_hash[:4] == "0000"
 
 # print(Blockchain.new_block.__annotations__)
 
